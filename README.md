@@ -10,42 +10,80 @@
 npm install --save react-use-form-validation-hook
 ```
 
-## Example Usage (done in Create React App (CRA) Style)
+## Example Usage
 
 ```jsx
-// in FormComponent file, or whatever your form component is
-import { useFormValidation } from 'react-use-form-validation-hook'
-
-const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-
-const initialState = { name: '', email: '' };
+import { useFormValidation } from "react-use-form-validation-hook";
 
 const validationRules = {
-  name: value => value.length > 4 || 'Name must be at least 4 characters',
-  email: value => emailRegex.test(value) || 'Invalid email address'
+  email: (value: string) => {
+    if (!value) {
+      return "Email is required";
+    }
+    if (!/\S+@\S+\.\S+/.test(value)) {
+      return "Email is invalid";
+    }
+    return true;
+  },
+  password: (value: string) => {
+    if (!value) {
+      return "Password is required";
+    }
+    if (value.length < 8) {
+      return "Password must be at least 8 characters long";
+    }
+    return true;
+  },
 };
 
-const FormComponent = () => {
-  const [formData, formErrors] = useFormValidation(initialState, validationRules);
+const MyForm = () => {
+  const [formData, errors] = useFormValidation(
+    { email: "", password: "" },
+    validationRules
+  );
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (Object.keys(errors).length === 0) {
+      console.log("Form data:", formData);
+    } else {
+      console.log("Validation errors:", errors);
+    }
+  };
 
   return (
-    <div>
-      <input value={formData.name} onChange={e => formData.name = e.target.value} />
-      {formErrors.name && <p style={{color: 'red'}}>{formErrors.name}</p>}
-      <input value={formData.email} onChange={e => formData.email = e.target.value} />
-      {formErrors.email && <p style={{color: 'red', fontWeight: 'bolder'}}>{formErrors.email}</p>}
-    </div>
+    <form onSubmit={handleSubmit}>
+      <label>
+        Email:
+        <input
+          type="email"
+          value={formData.email}
+          onChange={(event) => {
+            formData.email = event.target.value;
+          }}
+        />
+        {errors.email && <span>{errors.email}</span>}
+      </label>
+      <label>
+        Password:
+        <input
+          type="password"
+          value={formData.password}
+          onChange={(event) => {
+            formData.password = event.target.value;
+          }}
+        />
+        {errors.password && <span>{errors.password}</span>}
+      </label>
+      <button type="submit">Submit</button>
+    </form>
   );
-}
-
-// in App file, or where-ever you want to use it
-import { FormComponet } from './FormComponent';
+};
 
 export default function App() {
-  return (
-      <FormComponent />
-  );
+  return <MyForm />;
 }
+
 ```
 
 ## License
