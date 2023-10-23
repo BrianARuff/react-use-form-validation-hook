@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
 /**
  * Defines the validation rules for a form data object.
